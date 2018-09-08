@@ -24,7 +24,7 @@ pila_t* pila_crear(void) {
         return NULL;
     }
     
-    pila->datos = malloc(sizeof(void*));
+    pila->datos = malloc(CAPACIDAD_INICIAL * sizeof(void*));
     pila->cantidad = 0;
     pila->capacidad = CAPACIDAD_INICIAL;
 
@@ -43,6 +43,10 @@ void pila_destruir(pila_t *pila) {
 
 bool pila_apilar(pila_t *pila, void* valor) {
 	
+	if (valor == NULL) {
+		return false;
+	}
+	
 	if (pila->cantidad == pila->capacidad) {
 		
 		pila->datos = realloc(pila->datos, (pila->capacidad * 2) * sizeof(int));
@@ -55,9 +59,43 @@ bool pila_apilar(pila_t *pila, void* valor) {
 		
 	}
 	
-	pila->datos[pila->cantidad + 1] = valor;
+	pila->datos[pila->cantidad] = valor;
 	pila->cantidad = pila->cantidad + 1;
 	
 	return true;
 	
 }
+
+bool pila_esta_vacia(const pila_t *pila) {
+	return pila->cantidad == 0 ? true : false;
+}	
+
+void* pila_ver_tope(const pila_t *pila) {
+	return pila->datos[pila->cantidad - 1];
+}
+
+void* pila_desapilar(pila_t *pila) {
+	
+	if (pila->cantidad == 0) {
+		return NULL;
+	}
+	
+	void* elemento_quitado = pila_ver_tope(pila);
+	
+	pila->datos[pila->cantidad - 1] = NULL;
+	pila->cantidad = pila->cantidad - 1;
+	
+	if (pila->cantidad <= pila->capacidad / 4) {
+		
+		pila->datos = realloc(pila->datos, (pila->capacidad / 2) * sizeof(int));
+		pila->capacidad = pila->capacidad / 2;
+		
+	}
+	
+	return elemento_quitado;
+	
+}
+
+
+
+

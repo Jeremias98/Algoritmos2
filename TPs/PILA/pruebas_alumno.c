@@ -101,19 +101,28 @@ void test_volumen() {
 	size_t volumen = 10000;
 	int* vector = malloc(volumen * sizeof(int));
 	
-	bool flag = true;
+	bool flag_apilar = true;
+	bool flag_valor = true;
 	for (int i = 0; i < volumen ; i++) {
 		vector[i] = i;
-		flag &= pila_apilar(pila, &vector[i]);
+		flag_apilar &= pila_apilar(pila, &vector[i]);
+		flag_valor &= (pila_ver_tope(pila) == &vector[i]);
 	}
-	printf("Apilar volumen de %li elementos\n", volumen);
-	print_test("Se apilaron correctamente", flag);
 	
+	printf("Apilar volumen de %li elementos\n", volumen);
+	print_test("Se apilaron correctamente", flag_apilar);
+	print_test("Los topes fueron correctos", flag_valor);
+	print_test("La pila contiene elementos", pila_esta_vacia(pila) == false);
+	
+	void* elemento_tope = NULL;
 	for (int i = 0; i < volumen ; i++) {
-		pila_desapilar(pila);
+		elemento_tope = pila_ver_tope(pila);
+		flag_valor &= (pila_desapilar(pila) == elemento_tope);
 	}
+	
 	printf("Desapilar volumen de %li elementos\n", volumen);
 	print_test("La pila esta vacia", pila_esta_vacia(pila));
+	print_test("Se devolvieron elementos correctos", flag_valor);
 	print_test("Ver tope de la pila vacia", pila_ver_tope(pila) == NULL);
 	print_test("Desapilar sin elementos", pila_desapilar(pila) == NULL);
 	
@@ -121,9 +130,11 @@ void test_volumen() {
 	// No apilo la misma cantidad que antes, ni los mismos valores
 	for (int i = 0; i < volumen / 2 ; i++) {
 		vector[i] = vector[i] + i;
-		flag &= pila_apilar(pila, &vector[i]);
+		flag_apilar &= pila_apilar(pila, &vector[i]);
+		flag_valor &= (pila_ver_tope(pila) == &vector[i]);
 	}
 	
+	print_test("Los topes fueron correctos", flag_valor);
 	print_test("La pila contiene elementos", pila_esta_vacia(pila) == false);
 	
 	free(vector);

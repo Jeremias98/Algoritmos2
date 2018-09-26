@@ -157,7 +157,7 @@ void test_volumen() {
 	
 	printf("Desencolo %ld elementos (la mitad)\n", volumen/2);
 	for (int i = 0 ; i < volumen/2 ; i++) {
-		void* first = cola_ver_primero(cola_de_dinamicos);
+		first = cola_ver_primero(cola_de_dinamicos);
 		flag_cola = (cola_desencolar(cola_de_dinamicos) == first);
 		free(first);
 	}

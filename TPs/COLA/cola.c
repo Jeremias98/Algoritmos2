@@ -1,5 +1,6 @@
 #include "cola.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 typedef struct nodo {
 	void* dato;
@@ -11,9 +12,19 @@ struct cola {
 	nodo_t* ult;
 };
 
-// Funcion para verificar si la cola tiene solamente un elemento
-bool tiene_un_solo_elemento(cola_t *cola) {
-	return (cola->prim == cola->ult);
+nodo_t* crear_nodo(void) {
+	
+	nodo_t* nodo = malloc(sizeof(nodo_t));
+	
+	if (nodo == NULL) {
+		return NULL;
+	}
+	
+	nodo->dato = NULL;
+	nodo->prox = NULL;
+	
+	return nodo;
+	
 }
 
 cola_t* cola_crear(void) {
@@ -33,14 +44,9 @@ cola_t* cola_crear(void) {
 
 bool cola_encolar(cola_t *cola, void* valor) {
 	
-	nodo_t* nodo = malloc(sizeof(nodo_t));
-	
-	if (nodo == NULL) {
-		return false;
-	}
+	nodo_t* nodo = crear_nodo();
 	
 	nodo->dato = valor;
-	nodo->prox = NULL;
 		
 	if (cola_esta_vacia(cola)) {
 		cola->prim = nodo;
@@ -70,9 +76,9 @@ void* cola_desencolar(cola_t *cola) {
 	}
 	
 	nodo_t* nodo_quitado = cola->prim;
-	nodo_t* elemento_quitado = cola->prim->dato;
+	void* elemento_quitado = cola->prim->dato;
 	
-	if (tiene_un_solo_elemento(cola)) {
+	if (cola->prim == cola->ult) {
 		cola->prim = NULL;
 		cola->ult = NULL;
 	}
@@ -100,7 +106,7 @@ void cola_destruir(cola_t *cola, void destruir_dato(void*)) {
 		// En caso de tener un solo elemento, hacer free() a la posicion de 
 		// memoria de cola->prim ocasiona problemas, ya que cola->prim es igual a 
 		// cola->prim->prox y a cola->ult
-		nodo = tiene_un_solo_elemento(cola) ? NULL : proximo;
+		nodo = (cola->prim == cola->ult) ? NULL : proximo;
 	}
 	
 	free(cola);

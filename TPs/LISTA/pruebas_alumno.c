@@ -210,9 +210,9 @@ void test_iterador_interno() {
 	
 }
 
-void test_iterador_externo() {
+void test_iterador_externo_general() {
 	
-	printf("\n###### TEST ITERADOR EXTERNO ######\n");
+	printf("\n###### TEST ITERADOR EXTERNO GENERAL ######\n");
 	
 	lista_t* lista = lista_crear();
 	
@@ -249,6 +249,8 @@ void test_iterador_externo() {
     }
     printf("La lista contiene %d ítems\n", num_items);
     
+    print_test("Ver actual es NULL", lista_iter_ver_actual(iter) == NULL);
+    
     char ultimo[9] = "Elefante";
 	
 	print_test("Inserto con el iterador al final", lista_iter_insertar(iter, ultimo));
@@ -261,12 +263,92 @@ void test_iterador_externo() {
 	
 }
 
+void test_iterador_externo_profundo() {
+	
+	printf("\n###### TEST ITERADOR EXTERNO PROFUNDO ######\n");
+	
+	lista_t* lista = lista_crear();
+	lista_iter_t* iter = lista_iter_crear(lista);
+	
+	int elemento_1 = 1;
+	print_test("Inserto en la lista vacia", lista_iter_insertar(iter, &elemento_1));
+	print_test("Veo el primero", lista_ver_primero(lista) == &elemento_1);
+	
+	int elemento_2 = 2;
+	print_test("Inserto al final con primitiva de la lista", lista_insertar_ultimo(lista, &elemento_2));
+	
+	print_test("Veo el ultimo", lista_ver_ultimo(lista) == &elemento_2);
+	print_test("Veo el primero", lista_ver_primero(lista) == &elemento_1);
+	
+	printf("Vacio la lista\n");
+	while (!lista_iter_al_final(iter)) {
+		lista_iter_borrar(iter);
+	}
+	
+	verificar_lista_vacia(lista);
+	
+	print_test("Borrar es NULL", lista_iter_borrar(iter) == NULL);
+	
+	bool inserto_ok = true;
+	int* arreglo = malloc(3 * sizeof(int));
+	for (int i = 0 ; i < 3 && inserto_ok; i++) {
+		arreglo[i] = i;
+		inserto_ok = lista_iter_insertar(iter, &arreglo[i]);
+	}
+	
+	print_test("Inserto 3 elementos", inserto_ok);
+	
+	print_test("Veo el actual", lista_iter_ver_actual(iter) == &arreglo[2]);
+	
+	lista_iter_avanzar(iter);
+	
+	print_test("Avanzo y borro al medio", lista_iter_borrar(iter) == &arreglo[1]);
+	
+	print_test("Compruebo el primero", lista_ver_primero(lista) == &arreglo[2]);
+	print_test("Compruebo el ultimo", lista_ver_ultimo(lista) == &arreglo[0]);
+	
+	print_test("Borro y queda un solo elemento", lista_iter_borrar(iter) == &arreglo[0]);
+	
+	printf("Avanzo hasta el final\n");
+	while (!lista_iter_al_final(iter)) {
+		lista_iter_avanzar(iter);
+	}
+	
+	print_test("Avanzar es false", !lista_iter_avanzar(iter));
+	
+	print_test("Borrar es NULL", lista_iter_borrar(iter) == NULL);
+	
+	char cadena[10] = "Elemento";
+	print_test("Inserto al final con la primitiva de la lista", lista_insertar_ultimo(lista, cadena));
+	
+	print_test("Inserto al final", lista_insertar_ultimo(lista, cadena));
+	
+	print_test("Veo el final con la primitiva de la lista", lista_ver_ultimo(lista) == cadena);
+	
+	
+	printf("Creo un nuevo iterador\n");
+	lista_iter_t* iter2 = lista_iter_crear(lista);
+	
+	print_test("Veo el actual", lista_iter_ver_actual(iter2) == &arreglo[2]);
+	
+	print_test("Puedo avanzar", lista_iter_avanzar(iter2));
+	
+	print_test("Veo el actual", lista_iter_ver_actual(iter2) == cadena);
+	
+	free(arreglo);
+	lista_iter_destruir(iter);
+	lista_iter_destruir(iter2);
+	lista_destruir(lista, NULL);
+	
+}
+
 void pruebas_lista_alumno(void) {
 	test_lista_vacia();
 	test_un_elemento();
 	test_varios_elementos();
 	test_destruir();
-	test_iterador_interno();
-	test_iterador_externo();
 	test_volumen();
+	test_iterador_interno();
+	test_iterador_externo_general();
+	test_iterador_externo_profundo();
 }

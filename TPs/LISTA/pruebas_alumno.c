@@ -256,8 +256,6 @@ void test_iterador_externo_general() {
 	print_test("Inserto con el iterador al final", lista_iter_insertar(iter, ultimo));
 	print_test("Veo el ultimo", lista_ver_ultimo(lista) == ultimo);
 	
-	print_test("Elimino con el iterador al final", lista_iter_borrar(iter));
-	
 	lista_iter_destruir(iter);
 	lista_destruir(lista, NULL);
 	
@@ -325,21 +323,52 @@ void test_iterador_externo_profundo() {
 	
 	print_test("Veo el final con la primitiva de la lista", lista_ver_ultimo(lista) == cadena);
 	
+	free(arreglo);
+	lista_iter_destruir(iter);
+	lista_destruir(lista, NULL);
 	
-	printf("Creo un nuevo iterador\n");
+}
+
+void test_catedra() {
+	
+	printf("\n###### TEST INSERTAR CON DOS ITERADORES ######\n");
+	
+	lista_t* lista = lista_crear();
+	lista_iter_t* iter = lista_iter_crear(lista);
+	
+	print_test("Creo iterador", iter != NULL);
+	
+	int a = 5;
+	int b = 6;
+	int c = 7;
+	
+	print_test("Inserto en la lista vacia", lista_iter_insertar(iter, &a));
+	
+	print_test("Avanzo", lista_iter_avanzar(iter));
+	
+	print_test("Esta al final", lista_iter_al_final(iter));
+	
+	print_test("Inserto estando al final", lista_iter_insertar(iter, &b));
+	
+	print_test("Inserto uno mas", lista_iter_insertar(iter, &c));
+	
 	lista_iter_t* iter2 = lista_iter_crear(lista);
 	
-	print_test("Veo el actual", lista_iter_ver_actual(iter2) == &arreglo[2]);
+	print_test("Creo nuevo iterador", iter2 != NULL);
 	
-	print_test("Puedo avanzar", lista_iter_avanzar(iter2));
+	print_test("Ver actual", lista_iter_ver_actual(iter2) == &a);
 	
-	print_test("Veo el actual", lista_iter_ver_actual(iter2) == cadena);
+	print_test("Avanzo con el segundo iterador", lista_iter_avanzar(iter2));
 	
-	free(arreglo);
+	print_test("Ver actual", lista_iter_ver_actual(iter2) == &c);
+	
+	print_test("Avanzo con el segundo iterador", lista_iter_avanzar(iter2));
+	
+	print_test("Ver actual", lista_iter_ver_actual(iter2) == &b);
+	
 	lista_iter_destruir(iter);
 	lista_iter_destruir(iter2);
 	lista_destruir(lista, NULL);
-	
 }
 
 void pruebas_lista_alumno(void) {
@@ -351,4 +380,6 @@ void pruebas_lista_alumno(void) {
 	test_iterador_interno();
 	test_iterador_externo_general();
 	test_iterador_externo_profundo();
+	
+	test_catedra();
 }

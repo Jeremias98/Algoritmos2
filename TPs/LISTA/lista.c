@@ -97,7 +97,6 @@ bool lista_insertar_ultimo(lista_t *lista, void *dato) {
 	if (lista_esta_vacia(lista)) {
 		lista->prim = nodo;
 		lista->prim->prox = nodo;
-		printf("Lista vacia\n");
 	}
 	else {
 		lista->ult->prox = nodo;
@@ -209,24 +208,34 @@ bool lista_iter_insertar(lista_iter_t *iter, void *dato) {
 	if (lista_esta_vacia(iter->lista)) {
 		iter->lista->prim = iter->actual;
 		iter->lista->ult = iter->actual;
-		iter->lista->prim->prox = iter->lista->ult;
+		iter->lista->prim->prox = iter->actual;
 		iter->lista->ult->prox = NULL;
 	}
 	else {
-		// Si se inserto al principio...
-		if (iter->lista->prim == iter->actual->prox && iter->lista->largo > 1) {
-			iter->lista->prim = iter->actual;
-		}
 		// Caso con un elemento
 		if (iter->lista->ult == iter->lista->prim) {
-			iter->lista->ult = iter->lista->prim;
-			iter->lista->prim = iter->actual;
-			iter->lista->prim->prox = iter->lista->ult;
+			// Si se inserto a lo ultimo...
+			if (iter->anterior == iter->lista->ult) {
+				iter->lista->prim->prox = iter->actual;
+				iter->lista->ult = iter->actual;
+			}
+			else {
+				iter->lista->ult = iter->lista->prim;
+				iter->lista->prim = iter->actual;
+				iter->lista->prim->prox = iter->lista->ult;
+			}
+			
 		}
+		// Caso mas de un elemento
 		// Si se inserto a lo ultimo...
-		if (iter->lista->ult == iter->anterior) {
+		else if (iter->anterior == iter->lista->ult) {
 			iter->lista->ult = iter->actual;
 		}
+		// Si se inserto al principio...
+		else if (iter->lista->prim == iter->actual->prox) {
+			iter->lista->prim = iter->actual;
+		}
+		
 	}
 	
 	

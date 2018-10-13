@@ -20,6 +20,10 @@ typedef struct lista_iter {
 	lista_t* lista;
 }lista_iter_t;
 
+/*
+ * Funcion para crear un nodo
+ * Retorno: nodo creado, NULL si falla la creacion
+ */
 nodo_t* nodo_crear(void) {
 	
 	nodo_t* nodo = malloc(sizeof(nodo_t));
@@ -31,6 +35,19 @@ nodo_t* nodo_crear(void) {
 	
 	return nodo;
 	
+}
+
+/*
+ * Funcion para actualizar los valores de un nodo
+ * nodo_t* nodo: el nodo que se quiere actualizar
+ * nodo_t* actual: el nuevo valor que va a adquirir
+ * nodo_t* prox: el nodo proximo, NULL para mantener el actual
+ * void* dato: el dato que se quiere setear, NULL para usar el de actual
+ */
+void actualizar_lista_prim(lista_t* lista, nodo_t* prim, nodo_t* prox, void* dato) {
+	lista->prim = prim;
+	lista->prim->prox = prox;
+	if (dato != NULL) lista->prim->dato = dato;
 }
 
 // #### PRIMITIVAS DE LA LISTA #### //

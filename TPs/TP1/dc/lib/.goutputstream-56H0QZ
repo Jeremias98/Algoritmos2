@@ -1,0 +1,76 @@
+#define _POSIX_C_SOURCE 200809L
+#include "dc.h"
+#include "cola.h"
+#include "pila.h"
+#include "strutil.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+
+#define BUFFER_SIZE 512
+
+bool es_numero(char* entrada) {
+	return !(atoi(entrada) == 0 && entrada[0] != '0');
+}
+
+int calcular(pila_t* pila_numeros, cola_t* cola_operaciones) {
+	return 0;
+}
+
+void destruir_tdas(pila_t* pila_numeros, cola_t* cola_operaciones) {
+	pila_destruir(pila_numeros);
+	cola_destruir(cola_operaciones, NULL);
+}
+
+int dc_procesar_entrada() {
+	
+	FILE* archivo = stdin;
+	
+	char linea[BUFFER_SIZE];
+	
+	pila_t* pila_numeros = pila_crear();
+	cola_t* cola_operaciones = cola_crear();
+	
+	if (pila_numeros == NULL || cola_operaciones == NULL) {
+		fprintf(stderr, "No hay memoria disponible\n");
+		return -1;
+	}
+	
+	while(fgets(linea, BUFFER_SIZE, archivo) != NULL) {
+		
+		char** array = split(linea, " ");
+		
+		for (char* i = 2 ; i <= argc ; i++) {
+		
+			if (es_numero(argv[i])) {
+				// Caso que los numeros y las operaciones no son consistentes
+				if (i > limite_numeros) { 
+					destruir_tdas(pila_numeros, cola_operaciones);
+					return -1; 
+				}
+				
+				int valor = atoi(argv[i]);
+				
+				pila_apilar(pila_numeros, &valor);
+				
+			}
+			else {
+				// Caso que los numeros y las operaciones no son consistentes
+				if (i <= limite_numeros) { 
+					destruir_tdas(pila_numeros, cola_operaciones);
+					return -1;
+				}
+				
+				cola_encolar(cola_operaciones, argv[i]);
+			}
+			
+		}
+	}
+	
+	//calcular()
+	
+	destruir_tdas(pila_numeros, cola_operaciones);
+	
+	return 0;
+}

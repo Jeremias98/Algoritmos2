@@ -1,10 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "grep.h"
-
-void validar_parametros(char* keyword, int lineas, char* archivo) {
-	
-}
+#include "lib/grep.h"
 
 int main(int argc, char *argv[]) {
 	

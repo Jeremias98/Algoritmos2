@@ -1,6 +1,5 @@
 #define _POSIX_C_SOURCE 200809L
 #include "dc.h"
-#include "cola.h"
 #include "pila.h"
 #include "strutil.h"
 #include <stdio.h>
@@ -14,37 +13,47 @@ bool es_numero(char* entrada) {
 	return !(atoi(entrada) == 0 && entrada[0] != '0');
 }
 
-int potencia(int numero, int pow) {
+
+int logaritmo(int numero, int base) {
+		
+	if (numero == base) return 1;
+	if (numero == 1) return 0;
+	if (numero < 0) return -1; // Codigo de error
 	
-	for (int i = pow ; i > 1 ; i--) {
-		numero *= numero;
+	return 1 + logaritmo(numero/base, base);
+		
+}
+
+int potencia(int numero, int pot) {
+	
+	if (pot == 0) return 1;
+	
+	int x = potencia(numero, pot/2);
+	
+	if (pot % 2 == 0) {
+		return x * x;
 	}
 	
-	return numero;
+	return numero * x * x;
 	
 }
 
+int _raiz_cuadrada(int x, int factor) {
+	
+	if ((factor * factor) <= x) return factor;
+	
+	return _raiz_cuadrada(x, (factor/2)+1);
+	
+}
 
-// Por metodo babilonico
 int raiz_cuadrada(int x) {
-	
-	int r = x;
-	double factor = 0.5;
-	int t = 0;
-	
-	while (t != r) {
-		t = r;
-		r = (int) ( factor * (r + (x/r)));
-	}
-	
-	return r;
-	
+	if (x < 0) return -1;
+	return _raiz_cuadrada(x, x);
 }
-
 
 int aplicar_funcion(int n, char* funcion) {
 	
-	printf("%s(%d)\n", funcion, n);
+	//printf("%s(%d)\n", funcion, n);
 	
 	return raiz_cuadrada(n);
 	
@@ -52,7 +61,7 @@ int aplicar_funcion(int n, char* funcion) {
 
 int aplicar_operador_ternario(int n1, int n2, int n3) {
 	
-	printf("%d != 0 ? %d : %d\n", n3, n2, n1);
+	//printf("%d != 0 ? %d : %d\n", n3, n2, n1);
 	
 	return (n3 != 0) ? n2 : n1;
 	
@@ -60,7 +69,7 @@ int aplicar_operador_ternario(int n1, int n2, int n3) {
 
 int aplicar_operacion_algebraica(int n1, int n2, char* operando) {
 	
-	printf("%d %s %d\n", n1, operando, n2);
+	//printf("%d %s %d\n", n1, operando, n2);
 	
 	if (strcmp(operando, "+") == 0) {
 		return (n1 + n2);
@@ -73,6 +82,9 @@ int aplicar_operacion_algebraica(int n1, int n2, char* operando) {
 	}
 	else if (strcmp(operando, "/") == 0) {
 		return (n1 / n2);
+	}
+	else if (strcmp(operando, "log") == 0) {
+		return logaritmo(n1, n2);
 	}
 	else {
 		return potencia(n1, n2);
@@ -101,96 +113,78 @@ bool operando_es_operacion_alg(char* operando) {
 	return true;
 }
 
-void calcular(pila_t* pila_numeros, cola_t* cola_operaciones) {
+bool calcular(pila_t* pila_numeros, char* operacion) {
 	
-	while (!cola_esta_vacia(cola_operaciones) && !pila_esta_vacia(pila_numeros)) {
+	bool calculo_ok = true;
+	
+	char* operando = strtok(operacion, "\n");
+	
+	int i_res = 0;
+	char* c_res = malloc(20 * sizeof(char));
+	
+	char* c_num_1 = pila_desapilar(pila_numeros);
+	
+	// Caso es funcion  => un numero
+	if (operando_es_funcion(operando)) {
 		
-		char* operacion = cola_desencolar(cola_operaciones);
-		char* operando = strtok(operacion, "\n");
+		i_res = aplicar_funcion(atoi(c_num_1), operando);
 		
-		int i_res = 0;
+	}
+	else if (!pila_esta_vacia(pila_numeros)) {
 		
-		char* c_res = malloc(20 * sizeof(char));
-		bool aplicado = false;
+		char* c_num_2 = pila_desapilar(pila_numeros);
 		
-		char* c_num_1 = pila_desapilar(pila_numeros);
-		
-		// Caso es funcion
-		if (operando_es_funcion(operando)) {
+		// Caso operacion algebraica  => dos numeros
+		if (operando_es_operacion_alg(operando)) {				
 			
-			i_res = aplicar_funcion(atoi(c_num_1), operando);
-			
-			aplicado = true;
+			i_res = aplicar_operacion_algebraica(atoi(c_num_1), atoi(c_num_2), operando);
+	
+			free(c_num_2);
 			
 		}
 		else if (!pila_esta_vacia(pila_numeros)) {
 			
-			char* c_num_2 = pila_desapilar(pila_numeros);
-			
-			// Caso operacion algebraica
-			if (operando_es_operacion_alg(operando)) {				
+			// Caso operador ternario => tres numeros
+			if (operando_es_ternario(operando)) {
+		
+				char* c_num_3 = pila_desapilar(pila_numeros);
 				
-				i_res = aplicar_operacion_algebraica(atoi(c_num_1), atoi(c_num_2), operando);
-				
-				aplicado = true;
-				
+				i_res = aplicar_operador_ternario(atoi(c_num_1), atoi(c_num_2), atoi(c_num_3));
+								
 				free(c_num_2);
+				free(c_num_3);
 				
 			}
-			else if (!pila_esta_vacia(pila_numeros)) {
-				
-				if (operando_es_ternario(operando)) {
-			
-					char* c_num_3 = pila_desapilar(pila_numeros);
-					
-					i_res = aplicar_operador_ternario(atoi(c_num_1), atoi(c_num_2), atoi(c_num_3));
-					
-					aplicado = true;
-					
-					free(c_num_2);
-					free(c_num_3);
-					
-				}
-				else {
-					fprintf(stderr, "ERROR: Operacion desconocida\n");
-				}
-				
+			else {
+				fprintf(stderr, "ERROR: Operacion desconocida\n");
+				calculo_ok = false;
 			}
 			
 		}
-		
-		if (aplicado) {
-			sprintf(c_res,"%d",i_res);
-			pila_apilar(pila_numeros, strdup(c_res));
+		else {
+			fprintf(stderr, "ERROR: No hay suficientes numeros\n");
+			calculo_ok = false;
 		}
 		
-		free(c_num_1);
-		free(operacion);
-		free(c_res);
-		
-	}
-	
-	if (pila_esta_vacia(pila_numeros)) {
-		fprintf(stderr, "ERROR: Operacion desconocida\n");
 	}
 	else {
-		char* resultado = pila_desapilar(pila_numeros);
-		fprintf(stdout, "%s\n", resultado);
-		free(resultado);
+		fprintf(stderr, "ERROR: No hay suficientes numeros\n");
+		calculo_ok = false;
 	}
+	
+	if (calculo_ok) {
+		sprintf(c_res,"%d",i_res);
+		pila_apilar(pila_numeros, strdup(c_res));
+	}
+	
+	free(c_num_1);
+	free(c_res);
+	
+	return calculo_ok;
 	
 }
 
-void destruir_tdas(pila_t* pila_numeros, cola_t* cola_operaciones) {
-	pila_destruir(pila_numeros);
-	cola_destruir(cola_operaciones, free);
-}
-
-void vaciar_tdas(pila_t* pila_numeros, cola_t* cola_operaciones) {
-	
-	while(!cola_esta_vacia(cola_operaciones)) {
-		free(cola_desencolar(cola_operaciones));
-	}
+void vaciar_pila(pila_t* pila_numeros) {
 	
 	while(!pila_esta_vacia(pila_numeros)) {
 		free(pila_desapilar(pila_numeros));
@@ -205,9 +199,8 @@ int dc_procesar_entrada() {
 	char linea[BUFFER_SIZE];
 	
 	pila_t* pila_numeros = pila_crear();
-	cola_t* cola_operaciones = cola_crear();
 	
-	if (pila_numeros == NULL || cola_operaciones == NULL) {
+	if (pila_numeros == NULL) {
 		fprintf(stderr, "No hay memoria disponible\n");
 		return -1;
 	}
@@ -216,37 +209,34 @@ int dc_procesar_entrada() {
 		
 		char** array = split(linea, ' ');
 		
-		int cant_numeros = 0;
-		int cant_operaciones = 0;
+		bool calculo_ok = true;
 	
-		for (int i = 0; *(array + i); i++) {
+		for (int i = 0; *(array + i) && calculo_ok ; i++) {
 			
 			if (es_numero(array[i])) {
 				
 				pila_apilar(pila_numeros, strdup(array[i]));
-				cant_numeros++;
+				
 			}
 			else {
-				cola_encolar(cola_operaciones, strdup(array[i]));
-				cant_operaciones++;
+				calculo_ok = calcular(pila_numeros, array[i]);
 			}
 			
 		}
 		
-		if (cant_operaciones <= cant_numeros) {
-			calcular(pila_numeros, cola_operaciones);
-		}
-		else {
-			fprintf(stderr, "ERROR: Cantidad de operaciones mayor a cantidad de numeros\n");
+		char* resultado = pila_desapilar(pila_numeros);
+		
+		if (pila_esta_vacia(pila_numeros) &&  calculo_ok) {
+			fprintf(stdout, "%s\n", resultado);	
 		}
 		
-		vaciar_tdas(pila_numeros, cola_operaciones);
+		if (resultado != NULL) free(resultado);
 		
 		free_strv(array);
 		
 	}
 	
-	destruir_tdas(pila_numeros, cola_operaciones);
+	pila_destruir(pila_numeros);
 	
 	return 0;
 }

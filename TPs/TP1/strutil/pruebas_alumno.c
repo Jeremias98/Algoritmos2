@@ -48,6 +48,24 @@ void test_split() {
 	free(cadena_sin_coma);
 	free_strv(spliteado);
 	
+	
+	char** cadena_tres = array_cadena_crear(4);
+	cadena_tres[0] = "Perro";
+	cadena_tres[1] = "";
+	cadena_tres[2] = "Gato";
+	spliteado = split("Perro,,Gato", ',');
+	
+	print_test("Split con vacio", comparar_array_cadenas(spliteado, 3, cadena_tres, 3));
+	
+	free(cadena_tres);
+	free_strv(spliteado);
+
+}
+
+void test_join() {
+	
+	printf("###### TEST JOIN ######\n");
+	
 	char** cadena_tres = array_cadena_crear(4);
 	cadena_tres[0] = "Auto";
 	cadena_tres[1] = "Barco";
@@ -55,17 +73,50 @@ void test_split() {
 	cadena_tres[3] = NULL;
 	
 	char* joineado = join(cadena_tres, ',');
-	
-	printf("%s\n", joineado);
+	char* resultado = "Auto,Barco,Caracol";
+	print_test("Join de tres elementos", strcmp(joineado, resultado) == 0);
+	//printf("%s", joineado);
 	
 	free(cadena_tres);
-	
 	free(joineado);
 	
-	//print_test("Split sin separador", comparar_array_cadenas(spliteado, 1, cadena_sin_coma, 1));
+	char** cadena_uno = array_cadena_crear(2);
+	cadena_uno[0] = "Caracol";
+	cadena_uno[1] = NULL;
 	
+	joineado = join(cadena_uno, ',');
+	
+	resultado = "Caracol";
+	print_test("Join de un elemento", strcmp(joineado, resultado) == 0);
+	
+	free(cadena_uno);
+	free(joineado);
+	
+	char** cadena_vacios = array_cadena_crear(3);
+	cadena_vacios[0] = "";
+	cadena_vacios[1] = "";
+	cadena_vacios[2] = NULL;
+	
+	joineado = join(cadena_vacios, ',');
+	
+	resultado = ",";
+	print_test("Join de vacios", strcmp(joineado, resultado) == 0);
+	
+	free(cadena_vacios);
+	free(joineado);
+	
+	char** cadena_nula = array_cadena_crear(1);
+	cadena_nula[0] = NULL;
+	
+	joineado = join(cadena_nula, ',');
+	
+	print_test("Join de NULL", strcmp(joineado, "") == 0);
+	
+	free(cadena_nula);
+	free(joineado);
 }
 
 void pruebas_tp1_alumno(void) {
 	test_split();
+	test_join();
 }

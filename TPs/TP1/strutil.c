@@ -62,6 +62,12 @@ char* join(char** strv, char sep) {
 	
 	char* result;
 	
+	if (strv[0] == NULL) {
+		result = malloc( 2 * sizeof(char));
+		strcpy(result, "");
+		return result;
+	}
+	
 	char sep_casteado[2];
 	
 	sep_casteado[0] = sep;

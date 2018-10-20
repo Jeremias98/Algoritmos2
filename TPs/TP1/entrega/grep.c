@@ -30,25 +30,28 @@ bool buscar(char* keyword, int cant_lineas, char* archivo) {
 		
 		if((strstr(temp, keyword)) != NULL) {
 			
-			while(cola_ver_primero(cola_lineas_extra) != NULL) {
+			while(!cola_esta_vacia(cola_lineas_extra)) {
 				char* linea = cola_desencolar(cola_lineas_extra);
-				printf("%s\n", linea);
+				fprintf(stdout,"%s", linea);
 				free(linea);
 			}
 			
-			printf("%s\n", temp);
+			fprintf(stdout, "%s", temp);
 			
 			find_result++;
 			
+			index_linea = 0;
+			
 		}
+		else if (cant_lineas > 0) cola_encolar(cola_lineas_extra, strdup(temp));
 		
-		if (cant_lineas > 0) cola_encolar(cola_lineas_extra, strdup(temp));
-		
-		if (index_linea == cant_lineas) {
+		if (index_linea > cant_lineas) {
+			//printf("Linea\n");
 			free(cola_desencolar(cola_lineas_extra));
 		}
 		
 		index_linea++;
+		
 	}
 	
 	

@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "lib/grep.h"
+#include "grep.h"
 
 int main(int argc, char *argv[]) {
 	

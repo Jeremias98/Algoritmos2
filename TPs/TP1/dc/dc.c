@@ -13,11 +13,10 @@ bool es_numero(char* entrada) {
 	return !(atoi(entrada) == 0 && entrada[0] != '0');
 }
 
-
 int logaritmo(int numero, int base) {
 		
-	if (numero >= base) return 1;
-	if (numero == 1) return 0;
+	if (numero == base) return 1;
+	if (numero == 1 || numero < base) return 0;
 	if (numero < 0) return -1; // Codigo de error
 	
 	return 1 + logaritmo(numero/base, base);
@@ -38,40 +37,25 @@ int potencia(int numero, int pot) {
 	
 }
 
-int raiz_cuadrada(int x)  
-{     
+int raiz_cuadrada(int x) {
 	
-    if (x == 0 || x == 1) return x; 
-    
-    if (x < 0) return -1;
-  
-    int inicio = 0;
-    int fin = x / 2; // La raiz no puede ser mayor a la division por dos
-    int res = 0;
-      
-    while (inicio <= fin)  
-    {         
-        int medio = (inicio + fin) / 2; 
-  
-        if (medio == x/medio ) {
-		    return medio;	
-		}
-            
-        if (medio*medio < x)  
-        { 
-            inicio = medio + 1; 
-            res = medio; 
-        }  
-        else {
-			fin = medio;
-		}
-    } 
-    return res; 
-} 
+	int inicio, fin, medio;
+	inicio = 1;
+	fin = x;
+	
+	while (inicio <= fin) {
+		
+		medio = (inicio + fin) / 2;
+		if (medio * medio == x) return medio;
+		if (medio * medio > x) fin = medio - 1;
+		else inicio = medio + 1; 
+		
+	}
+	return fin;
+		
+}
 
-bool aplicar_raiz_cuadrada(int n, int* resultado ) {
-	
-	//printf("%s(%d)\n", funcion, n);
+bool aplicar_raiz_cuadrada(int n, int* resultado) {
 	
 	*resultado = raiz_cuadrada(n);
 	
@@ -80,29 +64,25 @@ bool aplicar_raiz_cuadrada(int n, int* resultado ) {
 }
 
 int aplicar_operador_ternario(int n1, int n2, int n3) {
-	
-	//printf("%d == 0 ? %d : %d\n", n1, n3, n2);
-	
+
 	return (n1 == 0) ? n3 : n2;
 	
 }
 
 bool aplicar_operacion_algebraica(int n1, int n2, char* operando, int* resultado) {
 	
-	//printf("%d %s %d\n", n2, operando, n1);
-	
 	if (strcmp(operando, "+") == 0) {
-		*resultado = (n2 + n1);
+		*resultado = (n1 + n2);
 	}
 	else if (strcmp(operando, "-") == 0) {
-		*resultado = (n2 - n1);
+		*resultado = (n1 - n2);
 	}
 	else if (strcmp(operando, "*") == 0) {
-		*resultado = (n2 * n1);
+		*resultado = (n1 * n2);
 	}
 	else if (strcmp(operando, "/") == 0) {
-		if (n1 == 0) return false;
-		*resultado = (n2 / n1);
+		if (n2 == 0) return false;
+		*resultado = (n1 / n2);
 	}
 	else if (strcmp(operando, "log") == 0) {
 		if (n1 > 0 && n2 > 0) {
@@ -116,6 +96,8 @@ bool aplicar_operacion_algebraica(int n1, int n2, char* operando, int* resultado
 	else {
 		*resultado = potencia(n1, n2);
 	}
+	
+	//printf("%d %s %d = %d\n", n2, operando, n1, *resultado);
 	
 	return true;
 	
@@ -146,6 +128,8 @@ bool op_requiere_dos(char* operando) {
 
 bool calcular(pila_t* pila_numeros, char* operacion) {
 	
+	if (pila_esta_vacia(pila_numeros)) return false;
+	
 	bool calculo_ok = false;
 	
 	char* operando = strtok(operacion, "\n");
@@ -154,12 +138,12 @@ bool calcular(pila_t* pila_numeros, char* operacion) {
 	char* c_res = malloc(20 * sizeof(char));
 	
 	char* c_num_1 = pila_desapilar(pila_numeros);
-	
-	// Caso es funcion  => un numero
+		
+	// Caso un numero
 	if (op_requiere_uno(operando)) {
 		
 		calculo_ok = aplicar_raiz_cuadrada(atoi(c_num_1), &i_res);
-		
+				
 	}
 	else if (!pila_esta_vacia(pila_numeros)) {
 		
@@ -232,9 +216,10 @@ int dc_procesar_entrada() {
 		
 		bool calculo_ok = true;
 	
-		for (int i = 0; *(array + i) && calculo_ok ; i++) {
+		for (int i = 0; array[i] && calculo_ok ; i++) {
 			
 			if (strcmp(array[i], "") != 0 && strcmp(array[i], "\n") != 0) {
+				
 				if (es_numero(array[i])) {
 				
 					pila_apilar(pila_numeros, strdup(array[i]));

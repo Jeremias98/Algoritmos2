@@ -28,7 +28,7 @@ void abb_destruir(abb_t *arbol);
 // ####### ITERADOR INTERNO ####### //
 void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void *extra);
 
-// ####### PRIMITIVAS ITERADOR EXTERNO ####### //
+// ####### PRIMITIVAS ITERADOR EXTERNO (INORDER) ####### //
 
 abb_iter_t *abb_iter_in_crear(const abb_t *arbol);
 

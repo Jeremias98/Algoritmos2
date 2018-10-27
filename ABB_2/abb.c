@@ -97,6 +97,7 @@ abb_nodo_t* get_reemplazante(abb_nodo_t* nodo) {
 	
 }
 
+
 size_t get_cantidad_hijos(abb_nodo_t* nodo) {
 	
 	size_t hijos = 0;
@@ -167,6 +168,7 @@ void *abb_obtener(const abb_t *arbol, const char *clave) {
 	return obtenido->dato;
 }
 
+
 abb_nodo_t* _abb_borrar(abb_t* arbol, abb_nodo_t *nodo, const char *clave) {
 	
 	if (!nodo) return NULL;
@@ -179,6 +181,7 @@ abb_nodo_t* _abb_borrar(abb_t* arbol, abb_nodo_t *nodo, const char *clave) {
 	}
 	else {
 		
+		// No hay nodo izquierdo, obtengo el hijo der
 		if (!nodo->izq) {
 			
 			abb_nodo_t* temp = nodo->der;
@@ -187,9 +190,11 @@ abb_nodo_t* _abb_borrar(abb_t* arbol, abb_nodo_t *nodo, const char *clave) {
 			free(nodo);
 			
 			arbol->cantidad--;
+			
 			return temp;
 			
 		}
+		// Viceversa
 		else if (!nodo->der) {
 			
 			abb_nodo_t* temp = nodo->izq;
@@ -201,6 +206,7 @@ abb_nodo_t* _abb_borrar(abb_t* arbol, abb_nodo_t *nodo, const char *clave) {
 			return temp;
 		}
 		
+		// Caso dos hijos
 		abb_nodo_t* temp = get_reemplazante(nodo->der);
 		
 		free(nodo->clave);
@@ -227,6 +233,7 @@ void *abb_borrar(abb_t *arbol, const char *clave) {
 	return dato_borrado;
 	
 }
+
 
 size_t abb_cantidad(abb_t *arbol) {
 	return arbol->cantidad;
@@ -278,4 +285,59 @@ void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void
 	
 }
 
+// Iterador INORDER //
 
+abb_iter_t *abb_iter_in_crear(const abb_t *arbol) {
+	
+	abb_iter_t* iter = malloc(sizeof(abb_iter_t));
+	if (!iter) return NULL;
+	
+	iter->pila = pila_crear();
+	if (!iter->pila) return NULL;
+	
+	// Apilo raiz
+	// y todos los hijos izquierdos
+	abb_nodo_t* nodo = arbol->raiz;
+	while (nodo) {
+		pila_apilar(iter->pila, nodo);
+		nodo = nodo->izq;
+	}
+	
+	return iter;
+	
+}
+
+bool abb_iter_in_avanzar(abb_iter_t *iter) {
+	
+	if (abb_iter_in_al_final(iter)) return false;
+	
+	abb_nodo_t* desapilado = pila_desapilar(iter->pila);
+	
+	// Apilo hijo derecho del desapilado
+	// y todos los hijos izquierdos
+	abb_nodo_t* nodo = desapilado->der;
+	while (nodo) {
+		pila_apilar(iter->pila, nodo);
+		nodo = nodo->izq;
+	}
+	
+	return true;
+	
+}
+
+const char *abb_iter_in_ver_actual(const abb_iter_t *iter) {
+	abb_nodo_t* actual = pila_ver_tope(iter->pila);
+	return actual->clave;
+}
+
+bool abb_iter_in_al_final(const abb_iter_t *iter) {
+	return pila_esta_vacia(iter->pila);
+}
+
+void abb_iter_in_destruir(abb_iter_t* iter) {
+	
+	pila_destruir(iter->pila);
+	
+	free(iter);
+	
+}

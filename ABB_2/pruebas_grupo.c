@@ -54,6 +54,8 @@ void test_crear() {
 	printf("Inorder: \n");
 	abb_in_order(arbol, NULL, NULL);	
 	
+	print_test("Obtener elemento 2", abb_obtener(arbol, clave_2) == dato_2);
+	
 	print_test("Borrar 2", abb_borrar(arbol, clave_2) == dato_2);
 	print_test("Cantidad es 1", abb_cantidad(arbol) == 1);
 	
@@ -68,7 +70,51 @@ void test_crear() {
 	
 }
 
+void test_reemplazar() {
+	
+	char* claves[] = {"1", "2", "3", "4", "5", "6", "7", NULL};
+	char* valores[] = {"1", "2", "3", "4", "5", "6", "7", NULL};
+	
+	abb_t* arbol = abb_crear(comparar_numeros, NULL);
+	
+	for (int i = 0; i < 7; i++) {
+		abb_guardar(arbol, claves[i], valores[i]);
+	}
+	
+	//abb_in_order(arbol, NULL, NULL);
+	
+	abb_destruir(arbol);
+	
+}
+
+void test_iter_externo() {
+	
+	char* claves[] = {"1", "2", "3", "4", "5", "6", "7", NULL};
+	char* valores[] = {"1", "2", "3", "4", "5", "6", "7", NULL};
+	
+	abb_t* arbol = abb_crear(comparar_numeros, NULL);
+	
+	for (int i = 0; i < 7; i++) {
+		abb_guardar(arbol, claves[i], valores[i]);
+	}
+	
+	abb_iter_t* iter = abb_iter_in_crear(arbol);
+	
+	while (!abb_iter_in_al_final(iter)) {
+		
+		printf("%s\n", abb_iter_in_ver_actual(iter));
+		
+		abb_iter_in_avanzar(iter);
+	}
+	
+	abb_iter_in_destruir(iter);
+	
+	abb_destruir(arbol);
+}
+
 
 void pruebas_abb_alumno() {
 	test_crear();
+	test_reemplazar();
+	test_iter_externo();
 }

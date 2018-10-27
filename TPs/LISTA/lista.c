@@ -37,18 +37,16 @@ nodo_t* nodo_crear(void) {
 	
 }
 
-/*
- * Funcion para actualizar los valores de un nodo
- * nodo_t* nodo: el nodo que se quiere actualizar
- * nodo_t* actual: el nuevo valor que va a adquirir
- * nodo_t* prox: el nodo proximo, NULL para mantener el actual
- * void* dato: el dato que se quiere setear, NULL para usar el de actual
- */
-void actualizar_lista_prim(lista_t* lista, nodo_t* prim, nodo_t* prox, void* dato) {
+void lista_actualizar_prim(lista_t* lista, nodo_t* prim, nodo_t* prox) {
 	lista->prim = prim;
 	lista->prim->prox = prox;
-	if (dato != NULL) lista->prim->dato = dato;
 }
+
+void lista_actualizar_ult(lista_t* lista, nodo_t* ult, nodo_t* prox) {
+	lista->ult = ult;
+	lista->ult->prox = prox;
+}
+
 
 // #### PRIMITIVAS DE LA LISTA #### //
 lista_t *lista_crear(void) {
@@ -112,15 +110,13 @@ bool lista_insertar_ultimo(lista_t *lista, void *dato) {
 	nodo->dato = dato;
 	
 	if (lista_esta_vacia(lista)) {
-		lista->prim = nodo;
-		lista->prim->prox = nodo;
+		lista_actualizar_prim(lista, nodo, nodo);
 	}
 	else {
 		lista->ult->prox = nodo;
 	}
 	
-	lista->ult = nodo;
-	lista->ult->prox = NULL;
+	lista_actualizar_ult(lista, nodo, NULL);
 	
 	lista->largo++;
 	
@@ -219,42 +215,15 @@ bool lista_iter_insertar(lista_iter_t *iter, void *dato) {
 		iter->anterior->prox = nodo;
 	}
 	
+	if (iter->actual == iter->lista->prim) {
+		iter->lista->prim = nodo;
+	}
+	
+	if (iter->anterior == iter->lista->ult) {
+		iter->lista->ult = nodo;
+	}
+	
 	iter->actual = nodo;
-	
-	// Caso lista vacia
-	if (lista_esta_vacia(iter->lista)) {
-		iter->lista->prim = iter->actual;
-		iter->lista->ult = iter->actual;
-		iter->lista->prim->prox = iter->actual;
-		iter->lista->ult->prox = NULL;
-	}
-	else {
-		// Caso con un elemento
-		if (iter->lista->ult == iter->lista->prim) {
-			// Si se inserto a lo ultimo...
-			if (iter->anterior == iter->lista->ult) {
-				iter->lista->prim->prox = iter->actual;
-				iter->lista->ult = iter->actual;
-			}
-			else {
-				iter->lista->ult = iter->lista->prim;
-				iter->lista->prim = iter->actual;
-				iter->lista->prim->prox = iter->lista->ult;
-			}
-			
-		}
-		// Caso mas de un elemento
-		// Si se inserto a lo ultimo...
-		else if (iter->anterior == iter->lista->ult) {
-			iter->lista->ult = iter->actual;
-		}
-		// Si se inserto al principio...
-		else if (iter->lista->prim == iter->actual->prox) {
-			iter->lista->prim = iter->actual;
-		}
-		
-	}
-	
 	
 	iter->lista->largo++;
 	
@@ -267,23 +236,21 @@ void *lista_iter_borrar(lista_iter_t *iter) {
 	if (lista_esta_vacia(iter->lista) || lista_iter_al_final(iter)) return NULL;
 	
 	nodo_t* nodo_quitado = iter->actual;
-	
 	void* elemento_quitado = iter->actual->dato;
 	
+	iter->actual = iter->actual->prox;
+	
 	if (nodo_quitado == iter->lista->prim) {
-		iter->actual = iter->actual->prox;
 		iter->lista->prim = iter->actual;
 	}
-	else if (nodo_quitado == iter->lista->ult) {
+	
+	if (nodo_quitado == iter->lista->ult) {
 		iter->lista->ult = iter->anterior;
-		iter->actual = NULL;
-		iter->anterior = iter->lista->ult;
-	}
-	else {
-		iter->actual = iter->actual->prox;
-		iter->anterior->prox = iter->actual;
 	}
 	
+	if (iter->anterior) {
+		iter->anterior->prox = iter->actual;
+	}
 	
 	free(nodo_quitado);
 	

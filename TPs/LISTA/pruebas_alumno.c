@@ -18,6 +18,29 @@ bool imprimir_un_item(void *elemento, void *extra)
     return true; // seguir iterando
 }
 
+bool imprimir_algunos_items(void *elemento, void *extra)
+{
+    
+    int *contador = extra;
+    printf("%d. %s\n", ++(*contador), (char*) elemento);
+	
+	if (*contador == 3) return false;
+	
+    return true; // seguir iterando
+}
+
+bool free_con_iter_interno(void *elemento, void *extra)
+{
+	
+    free(elemento);
+    
+    int *contador = extra;
+	
+	printf("%d Free\n", ++(*contador));
+
+    return true; 
+}
+
 void imprimir_iter_interno(lista_t *lista)
 {
     int num_items = 0;
@@ -208,6 +231,31 @@ void test_iterador_interno() {
 	
 	lista_destruir(lista, NULL);
 	
+	lista_t* lista_visitar = lista_crear();
+	int contador = 0;
+	char* vector = malloc(10 * sizeof(char));
+	lista_insertar_primero(lista_visitar, vector);
+	lista_iterar(lista_visitar, free_con_iter_interno, &contador);
+	
+	print_test("Iterar visitar con free libero uno", contador == 1);
+	
+	lista_destruir(lista_visitar, NULL);
+	
+	lista_t* lista_con_corte = lista_crear();
+	
+	print_test("Inserto 5 cosas", lista_insertar_ultimo(lista_con_corte, "Arbol") 
+		&& lista_insertar_ultimo(lista_con_corte, "Barco") 
+		&& lista_insertar_ultimo(lista_con_corte, "Caracol")
+		&& lista_insertar_ultimo(lista_con_corte, "Diario")
+		&& lista_insertar_ultimo(lista_con_corte, "Elefante"));
+	
+	contador = 0;
+	
+	lista_iterar(lista_con_corte, imprimir_algunos_items, &contador);
+	
+	print_test("Iterador termina con contador en 3", contador == 3);
+	
+	lista_destruir(lista_con_corte, NULL);
 }
 
 void test_iterador_externo_general() {
@@ -329,7 +377,7 @@ void test_iterador_externo_profundo() {
 	
 }
 
-void test_catedra() {
+void test_dos_iteradores() {
 	
 	printf("\n###### TEST INSERTAR CON DOS ITERADORES ######\n");
 	
@@ -380,6 +428,5 @@ void pruebas_lista_alumno(void) {
 	test_iterador_interno();
 	test_iterador_externo_general();
 	test_iterador_externo_profundo();
-	
-	test_catedra();
+	test_dos_iteradores();
 }

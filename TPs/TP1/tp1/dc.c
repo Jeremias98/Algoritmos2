@@ -210,7 +210,11 @@ int dc_procesar_entrada() {
 		return -1;
 	}
 	
+	bool esta_vacio = true;
+	
 	while(fgets(linea, BUFFER_SIZE, archivo) != NULL) {
+		
+		esta_vacio = false;
 		
 		char** array = split(linea, ' ');
 		
@@ -250,6 +254,12 @@ int dc_procesar_entrada() {
 		free_strv(array);
 		
 	}
+	
+	if (esta_vacio) {
+		fprintf(stderr, "ERROR\n");	
+	}
+	
+	//printf("LINEA%s\n", linea);
 	
 	pila_destruir(pila_numeros);
 	

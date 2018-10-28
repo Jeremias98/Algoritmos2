@@ -85,19 +85,13 @@ bool aplicar_operacion_algebraica(int n1, int n2, char* operando, int* resultado
 		*resultado = (n1 / n2);
 	}
 	else if (strcmp(operando, "log") == 0) {
-		if (n1 > 0 && n2 > 0) {
-			*resultado = logaritmo(n1, n2); 
-		}
-		else {
-			return false;
-		}
-		
+		if (n2 <= 1 || n1 <= 0) return false;
+		*resultado = logaritmo(n1, n2);
 	}
 	else {
+		if (n2 < 0) return false;
 		*resultado = potencia(n1, n2);
 	}
-	
-	//printf("%d %s %d = %d\n", n2, operando, n1, *resultado);
 	
 	return true;
 	
@@ -138,6 +132,8 @@ bool calcular(pila_t* pila_numeros, char* operacion) {
 	char* c_res = malloc(20 * sizeof(char));
 	
 	char* c_num_1 = pila_desapilar(pila_numeros);
+	char* c_num_2 = NULL;
+	char* c_num_3 = NULL;
 		
 	// Caso un numero
 	if (op_requiere_uno(operando)) {
@@ -147,14 +143,12 @@ bool calcular(pila_t* pila_numeros, char* operacion) {
 	}
 	else if (!pila_esta_vacia(pila_numeros)) {
 		
-		char* c_num_2 = pila_desapilar(pila_numeros);
+		c_num_2 = pila_desapilar(pila_numeros);
 		
 		// Caso dos numeros
 		if (op_requiere_dos(operando)) {				
 			
 			calculo_ok = aplicar_operacion_algebraica(atoi(c_num_1), atoi(c_num_2), operando, &i_res);
-	
-			free(c_num_2);
 			
 		}
 		else if (!pila_esta_vacia(pila_numeros)) {
@@ -162,14 +156,11 @@ bool calcular(pila_t* pila_numeros, char* operacion) {
 			// Caso tres numeros
 			if (op_requiere_tres(operando)) {
 		
-				char* c_num_3 = pila_desapilar(pila_numeros);
+				c_num_3 = pila_desapilar(pila_numeros);
 				
 				i_res = aplicar_operador_ternario(atoi(c_num_1), atoi(c_num_2), atoi(c_num_3));
 				
 				calculo_ok = true;
-								
-				free(c_num_2);
-				free(c_num_3);
 				
 			}
 			
@@ -183,6 +174,8 @@ bool calcular(pila_t* pila_numeros, char* operacion) {
 	}
 	
 	free(c_num_1);
+	if (c_num_2) free(c_num_2);
+	if (c_num_3) free(c_num_3);
 	free(c_res);
 	
 	return calculo_ok;
@@ -201,12 +194,17 @@ int dc_procesar_entrada() {
 	
 	FILE* archivo = stdin;
 	
+	if (!archivo) {
+		fprintf(stdout, "ERROR\n");	
+		return -1;
+	}
+	
 	char linea[BUFFER_SIZE];
 	
 	pila_t* pila_numeros = pila_crear();
 	
 	if (pila_numeros == NULL) {
-		fprintf(stderr, "No hay memoria disponible\n");
+		fprintf(stdout, "ERROR\n");
 		return -1;
 	}
 	
@@ -242,12 +240,10 @@ int dc_procesar_entrada() {
 			fprintf(stdout, "%s\n", resultado);	
 		}
 		else {
-			while (!pila_esta_vacia(pila_numeros)) {
-				free(pila_desapilar(pila_numeros));
-			}
-			
-			fprintf(stderr, "ERROR\n");	
+			fprintf(stdout, "ERROR\n");	
 		}
+		
+		vaciar_pila(pila_numeros);
 		
 		if (resultado != NULL) free(resultado);
 		
@@ -255,11 +251,7 @@ int dc_procesar_entrada() {
 		
 	}
 	
-	if (esta_vacio) {
-		fprintf(stderr, "ERROR\n");	
-	}
-	
-	//printf("LINEA%s\n", linea);
+	if (esta_vacio) fprintf(stdout, "ERROR\n");	
 	
 	pila_destruir(pila_numeros);
 	

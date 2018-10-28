@@ -69,6 +69,7 @@ char* concatenar(const char *s1, const char *s2)
     return concatenado;
 }
 
+
 char* join(char** strv, char sep) {
 	
 	char* result;
@@ -80,26 +81,34 @@ char* join(char** strv, char sep) {
 	}
 	
 	char sep_casteado[2];
+	
 	sep_casteado[0] = sep;
 	sep_casteado[1] = '\0';
 	
-	size_t cant_elementos = 1;
-	
-	result = strdup(strv[0]);
-	
+	int cant_elementos = 0;
+	size_t largo_total = 0;
 	while (*(strv + cant_elementos)) {
-		
-		// Guardo la posicion de memoria para liberarla
-		char* res_anterior = result;
-		
-		char* parcial = concatenar(sep_casteado, strv[cant_elementos]);
-		result = concatenar(result, parcial);
-		
-		free(res_anterior);		
-		free(parcial);
-		
+		largo_total += strlen(strv[cant_elementos]);
 		cant_elementos++;
 	}
+	
+	largo_total++;
+	
+	largo_total += cant_elementos; 
+	
+	result = malloc( (largo_total) * sizeof(char));
+	
+	if (result == NULL) return NULL;
+	
+	strcpy(result, strv[0]);
+	
+	for (int i = 1; i < cant_elementos ; i++)
+	{
+		strcat(result, sep_casteado);
+		strcat(result, strv[i]);
+	}
+	
+	result[largo_total - 1] = '\0';
 	
 	return result;
 	
